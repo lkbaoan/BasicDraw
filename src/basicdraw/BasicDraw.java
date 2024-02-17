@@ -19,51 +19,97 @@ import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
 
 public class BasicDraw {
-    private void renderLine(int x1, int y1, int x2, int y2) {
-        int dx = Math.abs(x2 - x1);
-        int dy = Math.abs(y2 - y1);
-        int d = dy - (dx/2);
-        int incrementRight = 2*dy;
-        int incrementUpRight = 2*(dy-dx);
-        int x,y;
+    private void renderCircle(int xCenter, int yCenter, int radius) {
+//        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//        glLoadIdentity();
+        glColor3f(0, 0, GL_BLUE);
+        glPointSize(1);
         
-        if (x1 > x2) {
-            x = x2;
-            y = y2;
-            x2 = x1;
-        } else {
-            x = x1;
-            y = y1;
-        }
-
+        int x = radius;
+        int y = 0;
+        int p = 1 - radius;
+        
         while (!Display.isCloseRequested()) {
             try {
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                glLoadIdentity();
+                
+                while (x > y) {
+                    glBegin(GL_POINTS);
+//                        glVertex2f(x+xCenter, y+yCenter);
+//                        glVertex2f(x-xCenter, y+yCenter);
+//                        glVertex2f(x+xCenter, y-yCenter);
+//                        glVertex2f(x-xCenter, y-yCenter);
+//                        
+//                        glVertex2f(x+yCenter, y+xCenter);
+//                        glVertex2f(x-yCenter, y+xCenter);
+//                        glVertex2f(x+yCenter, y-xCenter);
+//                        glVertex2f(x-yCenter, y-xCenter);
+//                        
+                        
+                        
+                        glVertex2f(x+xCenter, y+yCenter);
+                        glVertex2f(-x+xCenter, y+yCenter);
+                        glVertex2f(x+xCenter, -y+yCenter);
+                        glVertex2f(-x+xCenter, -y+yCenter);
+                    glEnd();
+                    
+                    y++;
+                    if (p <= 0) {
+                        p += 2*y+1;
+                    } else {
+                        x--;
+                        p+=2*y-2*x+1;
+                    }
+//                    if (x < y) break;
+                    
+                }
+                Display.update();
+                Display.sync(144);
+            } catch (Exception e) {}
+        }
+    }
+    
+    private void renderLine(int xStart, int yStart, int xEnd, int yEnd) {
+        int dx = Math.abs(xEnd-xStart);
+        int dy = Math.abs(yEnd-yStart);
+        int x,y,d;
+        d = 2*dy-dx;
+        if (xStart > xEnd) {
+            x = xEnd;
+            y = yEnd;
+            xEnd = xStart;
+        } else {
+            x = xStart;
+            y = yStart;
+        }
+        int incrementRight = 2*dy;
+        int incrementUpRight = 2*dy-dx;
+        boolean isUp = yEnd > yStart;
+        
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glLoadIdentity();
+        glColor3f(GL_RED, 0, 0);
+        glPointSize(1);
+        
+        while (!Display.isCloseRequested()) {
+            try {
 
-                glColor3f(GL_RED, 0, 0);
-                glPointSize(10);
-
-                glBegin(GL_POINTS);
-                    glVertex2i(x,y);
-                glEnd();                
-                while (x < x2) {
+                while (x < xEnd) {
+                    glBegin(GL_POINTS);
+                        glVertex2f(x, y);
+                    glEnd();
+                    
                     x++;
                     if (d < 0) {
-                        d+=incrementRight;
+                        d += incrementRight;
                     } else {
-                        d+=incrementUpRight;
-                        y++;
+                        if (isUp) y++;
+                        else y--;
+                        d += incrementUpRight;
                     }
-                    glBegin(GL_POINTS);
-                    glVertex2i(x,y);
-                    glEnd();
                 }
-
                 Display.update();
-                Display.sync(60);
+                Display.sync(144);
             } catch (Exception e) {}
-
         }
         
     }
@@ -73,7 +119,8 @@ public class BasicDraw {
         try {
             createWindow();
             initGL();
-            renderLine(10,380,380,10);
+            renderLine(350,50 ,500,70);
+            renderCircle(50,50, 100);
 //            render();
         } catch (Exception e) {
             e.printStackTrace();
