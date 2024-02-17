@@ -25,47 +25,40 @@ public class BasicDraw {
         glColor3f(0, 0, GL_BLUE);
         glPointSize(1);
         
-        int x = radius;
-        int y = 0;
+        int x = 0;
+        int y = radius;
         int p = 1 - radius;
         
         while (!Display.isCloseRequested()) {
             try {
-                
-                while (x > y) {
-                    glBegin(GL_POINTS);
-//                        glVertex2f(x+xCenter, y+yCenter);
-//                        glVertex2f(x-xCenter, y+yCenter);
-//                        glVertex2f(x+xCenter, y-yCenter);
-//                        glVertex2f(x-xCenter, y-yCenter);
-//                        
-//                        glVertex2f(x+yCenter, y+xCenter);
-//                        glVertex2f(x-yCenter, y+xCenter);
-//                        glVertex2f(x+yCenter, y-xCenter);
-//                        glVertex2f(x-yCenter, y-xCenter);
-//                        
-                        
-                        
-                        glVertex2f(x+xCenter, y+yCenter);
-                        glVertex2f(-x+xCenter, y+yCenter);
-                        glVertex2f(x+xCenter, -y+yCenter);
-                        glVertex2f(-x+xCenter, -y+yCenter);
-                    glEnd();
-                    
-                    y++;
-                    if (p <= 0) {
-                        p += 2*y+1;
+                drawCircle(xCenter, yCenter, x, y);
+                while (x < y) {
+                    x++;
+                    if (p < 0) {
+                        p += 2*x+1;
                     } else {
-                        x--;
-                        p+=2*y-2*x+1;
+                        y--;
+                        p+=2*x-2*y+1;
                     }
-//                    if (x < y) break;
+                    drawCircle(xCenter, yCenter, x, y);
                     
                 }
                 Display.update();
                 Display.sync(144);
             } catch (Exception e) {}
         }
+    }
+    private void drawCircle(int xCenter, int yCenter, int x, int y) {
+        glBegin(GL_POINTS);
+            glVertex2f(xCenter+x, yCenter+y);
+            glVertex2f(xCenter-x, yCenter+y);
+            glVertex2f(xCenter+x, yCenter-y);
+            glVertex2f(xCenter-x, yCenter-y);
+            glVertex2f(xCenter+y, yCenter+x);
+            glVertex2f(xCenter-y, yCenter+x);
+            glVertex2f(xCenter+y, yCenter-x);
+            glVertex2f(xCenter-y, yCenter-x);
+        glEnd();
     }
     
     private void renderLine(int xStart, int yStart, int xEnd, int yEnd) {
@@ -119,8 +112,8 @@ public class BasicDraw {
         try {
             createWindow();
             initGL();
-            renderLine(350,50 ,500,70);
-            renderCircle(50,50, 100);
+//            renderLine(350,50 ,500,70);
+            renderCircle(320,100, 54);
 //            render();
         } catch (Exception e) {
             e.printStackTrace();
