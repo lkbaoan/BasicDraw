@@ -19,6 +19,65 @@ import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
 
 public class BasicDraw {
+    private void renderEllipse(int xCenter, int yCenter, int rx, int ry) {
+        glColor3f(0, GL_GREEN, 0);
+        glPointSize(1);
+        int rx2 = rx*rx;
+        int ry2 = ry*ry;
+        int twoRx2 = 2*rx2;
+        int twoRy2 = 2*ry2;
+        int p;
+        int x = 0;
+        int y = ry;
+        int px = 0;
+        int py = twoRx2*y;
+        while (!Display.isCloseRequested()) {
+            try {
+                drawEllipse(xCenter, yCenter, x, y);
+                
+                // Region 1
+                p = (int)(ry2-(rx2*ry) + (0.25*rx2));
+                while (px < py) {
+                    x++;
+                    px +=twoRy2;
+                    if (p <0) p+=ry2+px;
+                    else {
+                        y--;
+                        py-=twoRx2;
+                        p+=ry2+px-py;
+                    }
+                    drawEllipse(xCenter, yCenter, x, y);
+                }
+                
+                // Region 2
+                p = (int)(ry2*(x+0.5)*(x+0.5)+rx2*(y-1)*(y-1)-rx2*ry2);
+                while (y >0) {
+                    y--;
+                    py-=twoRx2;
+                    if (p>0) p+=rx2-py;
+                    else {
+                        x++;
+                        px +=twoRy2;
+                        p+=rx2-py+px;
+                    }
+                    drawEllipse(xCenter, yCenter, x, y);
+                }
+                
+                Display.update();
+                Display.sync(144);
+            } catch (Exception e) {}
+        }
+    }
+    
+    private void drawEllipse(int xCenter, int yCenter, int x, int y) {
+        glBegin(GL_POINTS);
+            glVertex2f(xCenter+x, yCenter+y);
+            glVertex2f(xCenter-x, yCenter+y);
+            glVertex2f(xCenter+x, yCenter-y);
+            glVertex2f(xCenter-x, yCenter-y);
+        glEnd();
+    }
+    
     private void renderCircle(int xCenter, int yCenter, int radius) {
 //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //        glLoadIdentity();
@@ -113,7 +172,8 @@ public class BasicDraw {
             createWindow();
             initGL();
 //            renderLine(350,50 ,500,70);
-            renderCircle(320,100, 54);
+//            renderCircle(320,100, 54);
+            renderEllipse(100,100 ,45,80);
 //            render();
         } catch (Exception e) {
             e.printStackTrace();
