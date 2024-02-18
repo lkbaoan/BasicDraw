@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static org.lwjgl.opengl.GL11.*;
@@ -185,67 +186,10 @@ public class BasicDraw {
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     }
 
-    private void toRenderLine(String str) {
-        String[] line = str.trim().split("\\s+");
-        String[] c1 = line[1].split(",");
-        String[] c2 = line[2].split(",");
-        int[] coordinate = {
-            Integer.parseInt(c1[0]),
-            Integer.parseInt(c1[1]),
-            Integer.parseInt(c2[0]),
-            Integer.parseInt(c2[1])
-        };
-        System.out.println(coordinate[0] + " | " + coordinate[1] + " | " + coordinate[2] + " | " + coordinate[3]);
-        renderLine(coordinate[0], coordinate[1], coordinate[2], coordinate[3]);
-    }
-
-    private void toRenderCircle(String str) {
-        String[] line = str.trim().split("\\s+");
-        String[] c1 = line[1].split(",");
-        String[] c2 = line[2].split(",");
-        int[] coordinate = {
-            Integer.parseInt(c1[0]),
-            Integer.parseInt(c1[1]),
-            Integer.parseInt(c2[0]),};
-        System.out.println(coordinate[0] + " | " + coordinate[1] + " | " + coordinate[2]);
-        renderCircle(coordinate[0], coordinate[1], coordinate[2]);
-    }
-
-    private void toRenderEllipse(String str) {
-        String[] line = str.trim().split("\\s+");
-        String[] c1 = line[1].split(",");
-        String[] c2 = line[2].split(",");
-        int[] coordinate = {
-            Integer.parseInt(c1[0]),
-            Integer.parseInt(c1[1]),
-            Integer.parseInt(c2[0]),
-            Integer.parseInt(c2[1])
-        };
-        System.out.println(coordinate[0] + " | " + coordinate[1] + " | " + coordinate[2] + " | " + coordinate[3]);
-        renderEllipse(coordinate[0], coordinate[1], coordinate[2], coordinate[3]);
-    }
-
     // method: render
     // purpose: render graphics based on command
     private void render(int[][] line, int[][] circle, int[][] ellipse) {
-        System.out.printf("%d | %d | %d\n", line.length, circle.length, ellipse.length);
-//        for (int i = 0; i < 2; i++) {
-//            System.out.printf("%d, %d, %d, %d | %d, %d, %d | %d, %d, %d, %d\n", line[i][0], line[i][1], line[i][2], line[i][3], circle[i][0], circle[i][1], circle[i][2], ellipse[i][0], ellipse[i][1], ellipse[i][2], ellipse[i][3]);
-//        }
-//
-//        int[][] line = {
-//            {10, 380, 380, 10},
-//            {350, 50, 500, 70}
-//        };
-//        int[][] circle = {
-//            {320, 100, 54},
-//            {50, 50, 100}
-//        };
-//        int[][] ellipse = {
-//            {100, 100, 45, 80},
-//            {450, 250, 75, 35}
-//        };
-        while (!Display.isCloseRequested()) {
+        while (!Keyboard.isKeyDown(Keyboard.KEY_Q) && !Display.isCloseRequested()) {
             try {
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 glLoadIdentity();
@@ -253,7 +197,6 @@ public class BasicDraw {
                 glColor3f(1.0f, 1.0f, 0.0f);
                 glPointSize(1);
 
-                glBegin(GL_POINTS);
                 for (int[] l : line) {
                     renderLine(l[0], l[1], l[2], l[3]);
                 }
@@ -263,7 +206,7 @@ public class BasicDraw {
                 for (int[] l : ellipse) {
                     renderEllipse(l[0], l[1], l[2], l[3]);
                 }
-                glEnd();
+
                 Display.update();
                 Display.sync(60);
             } catch (Exception e) {
