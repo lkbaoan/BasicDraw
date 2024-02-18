@@ -15,7 +15,6 @@ package basicdraw;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Scanner;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -154,11 +153,11 @@ public class BasicDraw {
 
     // method: start
     // purpose: start a new window and render graphics
-    public void start(ArrayList<String> toRender) {
+    public void start(int[][] line, int[][] circle, int[][] ellipse) {
         try {
             createWindow();
             initGL();
-            render(toRender);
+            render(line, circle, ellipse);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -228,8 +227,24 @@ public class BasicDraw {
 
     // method: render
     // purpose: render graphics based on command
-    private void render(ArrayList<String> command) {
-        Iterator it = command.iterator();
+    private void render(int[][] line, int[][] circle, int[][] ellipse) {
+        System.out.printf("%d | %d | %d\n", line.length, circle.length, ellipse.length);
+//        for (int i = 0; i < 2; i++) {
+//            System.out.printf("%d, %d, %d, %d | %d, %d, %d | %d, %d, %d, %d\n", line[i][0], line[i][1], line[i][2], line[i][3], circle[i][0], circle[i][1], circle[i][2], ellipse[i][0], ellipse[i][1], ellipse[i][2], ellipse[i][3]);
+//        }
+//
+//        int[][] line = {
+//            {10, 380, 380, 10},
+//            {350, 50, 500, 70}
+//        };
+//        int[][] circle = {
+//            {320, 100, 54},
+//            {50, 50, 100}
+//        };
+//        int[][] ellipse = {
+//            {100, 100, 45, 80},
+//            {450, 250, 75, 35}
+//        };
         while (!Display.isCloseRequested()) {
             try {
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -239,57 +254,15 @@ public class BasicDraw {
                 glPointSize(1);
 
                 glBegin(GL_POINTS);
-                renderLine(10, 380, 380, 10);
-                renderCircle(320, 100, 54);
-                renderEllipse(100, 100, 45, 80);
-                renderLine(350, 50, 500, 70);
-                renderCircle(50, 50, 100);
-                renderEllipse(450, 250, 75, 35);
-//                while (it.hasNext()) {
-//                    String str = it.next().toString();
-//                    switch (str.charAt(0)) {
-//                        case 'l':
-//                            toRenderLine(str);
-//                            break;
-//                        case 'c':
-//                            toRenderCircle(str);
-//                            break;
-//                        case 'e':
-//                            toRenderEllipse(str);
-//                            break;
-//                        default:
-//                            throw new AssertionError();
-//                    }
-//                }
-//                while (it.hasNext()) {
-//                    String line = it.next().toString();
-//                    String[] spaceSplit = line.trim().split("\\s+");
-//                    String[] coordinate1 = spaceSplit[1].split(",");
-//                    String[] coordinate2 = spaceSplit[2].split(",");
-//                    System.out.println("Splitted " + spaceSplit[0] + " | " + spaceSplit[1] + " | " + spaceSplit[2]);
-//                    int[] commandSplit;
-//                    commandSplit = new int[4];
-//                    commandSplit[0] = Integer.parseInt(coordinate1[0]);
-//                    commandSplit[1] = Integer.parseInt(coordinate1[1]);
-//                    commandSplit[2] = Integer.parseInt(coordinate2[0]);
-//
-//                    switch (spaceSplit[0]) {
-//                        case "c" -> {
-//                            System.out.println(commandSplit[0] + " | " + commandSplit[1] + " | " + commandSplit[2]);
-//                            renderCircle(commandSplit[0], commandSplit[1], commandSplit[2]);
-//                        }
-//                        case "l" -> {
-//                            commandSplit[3] = Integer.parseInt(coordinate2[1]);
-//                            System.out.println(commandSplit[0] + " | " + commandSplit[1] + " | " + commandSplit[2] + " | " + commandSplit[3]);
-//                            renderLine(commandSplit[0], commandSplit[1], commandSplit[2], commandSplit[3]);
-//                        }
-//                        case "e" -> {
-//                            commandSplit[3] = Integer.parseInt(coordinate2[1]);
-//                            System.out.println(commandSplit[0] + " | " + commandSplit[1] + " | " + commandSplit[2] + " | " + commandSplit[3]);
-//                            renderEllipse(commandSplit[0], commandSplit[1], commandSplit[2], commandSplit[3]);
-//                        }
-//                    }
-//                }
+                for (int[] l : line) {
+                    renderLine(l[0], l[1], l[2], l[3]);
+                }
+                for (int[] l : circle) {
+                    renderCircle(l[0], l[1], l[2]);
+                }
+                for (int[] l : ellipse) {
+                    renderEllipse(l[0], l[1], l[2], l[3]);
+                }
                 glEnd();
                 Display.update();
                 Display.sync(60);
@@ -305,18 +278,65 @@ public class BasicDraw {
         BasicDraw program = new BasicDraw();
 
         ArrayList<String> str = new ArrayList<>();
-
+        int[] counter = {0, 0, 0};
+        int[][] line, circle, ellipse;
+        int[] ite = {0, 0, 0};
         try {
             Scanner read = new Scanner(new File(args[0]));
             while (read.hasNextLine()) {
                 String data = read.nextLine();
                 str.add(data);
+                switch (data.charAt(0)) {
+                    case 'l' ->
+                        counter[0]++;
+                    case 'c' ->
+                        counter[1]++;
+                    case 'e' ->
+                        counter[2]++;
+                    default ->
+                        throw new AssertionError();
+                }
             }
             read.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        program.start(str);
+
+        line = new int[counter[0]][4];
+        circle = new int[counter[1]][3];
+        ellipse = new int[counter[2]][4];
+        for (String s : str) {
+            String[] separate = s.trim().split("\\s+");
+            String[] c1 = separate[1].split(",");
+            String[] c2 = separate[2].split(",");
+
+            switch (separate[0]) {
+                case "l" -> {
+                    line[ite[0]][0] = Integer.parseInt(c1[0]);
+                    line[ite[0]][1] = Integer.parseInt(c1[1]);
+                    line[ite[0]][2] = Integer.parseInt(c2[0]);
+                    line[ite[0]][3] = Integer.parseInt(c2[1]);
+                    ite[0]++;
+                }
+                case "c" -> {
+                    circle[ite[1]][0] = Integer.parseInt(c1[0]);
+                    circle[ite[1]][1] = Integer.parseInt(c1[1]);
+                    circle[ite[1]][2] = Integer.parseInt(c2[0]);
+                    ite[1]++;
+                }
+                case "e" -> {
+                    ellipse[ite[2]][0] = Integer.parseInt(c1[0]);
+                    ellipse[ite[2]][1] = Integer.parseInt(c1[1]);
+                    ellipse[ite[2]][2] = Integer.parseInt(c2[0]);
+                    ellipse[ite[2]][3] = Integer.parseInt(c2[1]);
+                    ite[2]++;
+                }
+                default ->
+                    throw new AssertionError();
+            }
+        }
+
+        program.start(line, circle, ellipse);
     }
 
 }
